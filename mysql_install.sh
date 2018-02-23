@@ -7,7 +7,7 @@ is_installed(){
 
 install_mysql(){
 
-	if [ $(is_installed /usr/sbin/apache2) -eq 1 ] ; then
+	if [ $(is_installed /usr/bin/mysql) -eq 1 ] ; then
 
 		export DEBIAN_FRONTEND="noninteractive"
 		sudo debconf-set-selections <<< "mysql-server mysql-server/root_password erty $1"
