@@ -97,6 +97,11 @@ def print_list_bdd(list_bdd) -> None:
 	print("\n")
 
 
+def print_choice_db(bdd_list) -> None:
+	for index in range(len(bdd_list)):
+		print('\t'+str(index)+" - "+bdd_list[index])
+
+
 def save_db(database_name) -> None:
 	"""
 	Sauvegarde de la base de données passée en paramètre
@@ -105,8 +110,7 @@ def save_db(database_name) -> None:
 	file_name = str(BACKUP_FOLDER)+str(current_date)+"-dump_" + database_name + ".sql"
 	os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " " + database_name + " > "+ file_name)
 
-
-	# mysqldump -u root -perty appli_web > filetest.sql
+	print("base "+database_name+" saved in folder "+BACKUP_FOLDER)
 
 
 def save_all_db() -> None:
@@ -158,6 +162,9 @@ def restore_all_db() -> None:
 # 	os.system('gunzip < dump_appli_web_01.sql.gz | mysql -u appli_web -p appli_web')
 
 def process_user_choice(user_choice) -> None:
+	
+	cls()
+	
 	# Liste
 	if user_choice == 1:
 		
@@ -181,15 +188,34 @@ def process_user_choice(user_choice) -> None:
 		restore_all_db()
 
 
+	## BENJI
 	# Sauvegarde Unique
 	elif user_choice == 4:
-		"""
-		- Lister les base de données dispo
-		- Demander laquelle sauvegarder
-		- Sauvegarder celle demandée
-		"""	
-		database_name = None
-		save_db(database_name)
+
+		bdd_list = get_list_own_bdd()
+
+		print("Sauvegarde d'une seule base de donnees \n")
+
+		while True:
+			print("Voici la liste de vos bases de donnees : \n")
+
+			print_choice_db(bdd_list)
+			
+			db_choice = input("\nEntrez le numero correspondant a la base que vous souhaitez sauvegarder :\n")
+			
+			if db_choice.isdigit():
+				db_choice = int(db_choice)
+				if 0 <= db_choice < len(bdd_list):
+					break
+				else:
+					print("Invalid index")
+			else:
+				print("Invalid index, please enter a valid index")
+			
+		db_chosen = str(bdd_list[db_choice])
+		print("Vous avez selectionne la base : "+db_chosen)
+
+		save_db(db_chosen)
 
 
 	# Restauration Unique
