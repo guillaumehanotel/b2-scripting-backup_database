@@ -153,6 +153,31 @@ def restore_all_db() -> None:
 	pass
 
 
+def choose_db() -> str:
+	bdd_list = get_list_own_bdd()
+
+	while True:
+		
+		print("Voici la liste de vos bases de donnees : \n")
+
+		print_choice_db(bdd_list)
+		
+		db_choice = input("\nEntrez le numero correspondant a la base que vous souhaitez sauvegarder :\n")
+		
+		if db_choice.isdigit():
+			db_choice = int(db_choice)
+			if 0 <= db_choice < len(bdd_list):
+				break
+			else:
+				print("Invalid index")
+		else:
+			print("Invalid index, please enter a valid index")
+		
+	db_chosen = str(bdd_list[db_choice])
+	print("Vous avez selectionne la base : "+db_chosen)
+	return db_chosen
+
+
 # def save_BDD_zip() -> None:
 # 	# Sauvegarde de la BDD compressé :
 # 	os.system('mysqldump -u appli_web -p appli_web | gzip -9 > dump_appli_web_01.sql.gz')
@@ -192,29 +217,8 @@ def process_user_choice(user_choice) -> None:
 	# Sauvegarde Unique
 	elif user_choice == 4:
 
-		bdd_list = get_list_own_bdd()
-
 		print("Sauvegarde d'une seule base de donnees \n")
-
-		while True:
-			print("Voici la liste de vos bases de donnees : \n")
-
-			print_choice_db(bdd_list)
-			
-			db_choice = input("\nEntrez le numero correspondant a la base que vous souhaitez sauvegarder :\n")
-			
-			if db_choice.isdigit():
-				db_choice = int(db_choice)
-				if 0 <= db_choice < len(bdd_list):
-					break
-				else:
-					print("Invalid index")
-			else:
-				print("Invalid index, please enter a valid index")
-			
-		db_chosen = str(bdd_list[db_choice])
-		print("Vous avez selectionne la base : "+db_chosen)
-
+		db_chosen = choose_db()
 		save_db(db_chosen)
 
 
