@@ -30,6 +30,7 @@ import datetime
 
 # Databases are stored in : /var/lib/mysql
 
+
 ##### Constantes # TODO : à externaliser dans un fichier de conf
 MYSQL_USER = "root"
 MYSQL_PASSWORD = "erty"
@@ -78,6 +79,7 @@ def get_list_bdd() -> list:
 
 	return list_bdd
 
+
 def get_list_own_bdd() -> list:
 	"""
 	Retourne la liste des base de données MySQL sans celles par défaut
@@ -88,12 +90,11 @@ def get_list_own_bdd() -> list:
 
 	return list_bdd
 
+
 def print_list_bdd(list_bdd) -> None:
 	print("\n\tListe de vos bases de données : \n")
 	print('\t - %s' % '\n\t - '.join(map(str, list_bdd)))
 	print("\n")
-
-
 
 
 def save_db(database_name) -> None:
@@ -107,6 +108,7 @@ def save_db(database_name) -> None:
 
 	# mysqldump -u root -perty appli_web > filetest.sql
 
+
 def save_all_db() -> None:
 	"""
 	Sauvegarde de toutes les bases de données
@@ -119,14 +121,14 @@ def save_all_db() -> None:
 	touch(file_name)
 	f = open(file_name, "w")
 
-	error_code = subprocess.call(command, stdout=f)
+	return_code = subprocess.call(command, stdout=f)
 
 	# error_code = os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " --all-databases --events > " + file_name)
 
-	if error_code == 0:
+	if return_code == 0:
 		print("Save succesfully stored in "+str(BACKUP_FOLDER))
 	else:
-		sys.stderr.write("Error Code : " + str(error_code))
+		sys.stderr.write("Error Code : " + str(return_code))
 		sys.exit(1)
 
 	# mysqldump -u root -perty --all-databases --events > filetest.sql
@@ -138,6 +140,7 @@ def restore_db(database_name) -> None:
 	"""
 	#os.system("mysql -u root -p " + database_name + " < dump_appli_web_01.sql")
 	pass
+
 
 def restore_all_db() -> None:
 	"""
@@ -154,21 +157,21 @@ def restore_all_db() -> None:
 # 	# Restauration de la BDD avec fichier compressé :
 # 	os.system('gunzip < dump_appli_web_01.sql.gz | mysql -u appli_web -p appli_web')
 
-def process_user_choice(choix_user) -> None:
+def process_user_choice(user_choice) -> None:
 	# Liste
-	if choix_user == 1:
+	if user_choice == 1:
 		
 		list_bdd = get_list_own_bdd()
 		print_list_bdd(list_bdd)
 
 	# Sauvegarde All
-	elif choix_user == 2:
+	elif user_choice == 2:
 		print("\nSauvegarde de l'ensemble des bases de donnees...")
 		save_all_db()
 		
 
 	# Restauration All
-	elif choix_user == 3:
+	elif user_choice == 3:
 		"""
 		- Regarder dans le dossier des sauvegardes si il y a des sauvegardes concernant 
 		l'ensemble des base de données, 
@@ -179,7 +182,7 @@ def process_user_choice(choix_user) -> None:
 
 
 	# Sauvegarde Unique
-	elif choix_user == 4:
+	elif user_choice == 4:
 		"""
 		- Lister les base de données dispo
 		- Demander laquelle sauvegarder
@@ -190,7 +193,7 @@ def process_user_choice(choix_user) -> None:
 
 
 	# Restauration Unique
-	elif choix_user == 5:
+	elif user_choice == 5:
 		"""
 		- Lister les base de données dispo
 		- Demander laquelle sauvegarder
@@ -223,12 +226,12 @@ def main():
 
 
 	try:
-		choix_user = int(input("Votre choix ?\n> "))
+		user_choice = int(input("Votre choix ?\n> "))
 	except ValueError:
 		sys.stderr.write("Error : Undefined choice\n")
 		sys.exit(1)
 
-	process_user_choice(choix_user)
+	process_user_choice(user_choice)
 
 
 '''
