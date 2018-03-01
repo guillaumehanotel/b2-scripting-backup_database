@@ -178,6 +178,10 @@ def choose_db() -> str:
 	return db_chosen
 
 
+def list_db_versions():
+	pass 
+
+
 # def save_BDD_zip() -> None:
 # 	# Sauvegarde de la BDD compressé :
 # 	os.system('mysqldump -u appli_web -p appli_web | gzip -9 > dump_appli_web_01.sql.gz')
@@ -226,14 +230,40 @@ def process_user_choice(user_choice) -> None:
 	elif user_choice == 5:
 		"""
 		- Lister les base de données dispo
-		- Demander laquelle sauvegarder
+		- Demander laquelle restaurer
 		- Regarder dans le dossier des sauvegardes si il y a des sauvegardes concernant 
 		la bdd voulu
 		- si c'est le cas, proposer laquelle restaurer
 		- si ce n'est pas le cas, proposer de rentrer le chemin du fichier manuellement
 		"""
-		database_name = None
-		restore_db(database_name)
+
+		# define the ls command
+		ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],  
+							stdout=subprocess.PIPE,
+							)
+
+		# define the grep command
+		grep = subprocess.Popen(["grep", "db2"],  
+								stdin=ls.stdout,
+								stdout=subprocess.PIPE,
+								)
+
+		# read from the end of the pipe (stdout)
+		endOfPipe = grep.stdout
+		
+		
+
+		# output the files line by line
+		for line in endOfPipe:  
+			print (line)
+
+
+
+		# database_name = choose_db()
+		# # lister les elements presents dans le dossier backup (ls)
+		# # lister les versions de CETTE base (grep ?)
+
+		# restore_db(database_name)
 
 	else:
 		sys.stderr.write("Error : Undefined choice\n")
