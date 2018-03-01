@@ -1,4 +1,4 @@
-#!/usr/bin/python3.4
+ #!/usr/bin/python3.4
 # -*- coding: utf-8 -*-
 # ====================================================
 # TITLE           : Mysql Database Save Manager
@@ -48,7 +48,7 @@ def touch(path) -> None:
         os.utime(path, None)
 
 
-def cls() -> None:
+def clear_screen() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
@@ -58,9 +58,15 @@ def get_date() -> str:
     :return: formatted_date
     """
     date_now = datetime.datetime.now()
-    formatted_date = str(date_now.year) + str(date_now.month) + str(date_now.day) + str(date_now.hour) + str(
-        date_now.minute) + str(date_now.second)
+    formatted_date = str(date_now.year) + reformat_number(str(date_now.month)) + reformat_number(str(date_now.day)) + reformat_number(str(date_now.hour)) + reformat_number(str(date_now.minute)) + reformat_number(str(date_now.second))
     return formatted_date
+
+
+def reformat_number(str_number) -> str:
+    if int(str_number) < 10:
+        str_number = "0" + str_number
+    return str_number
+
 
 
 def get_list_database_names() -> list:
@@ -84,26 +90,48 @@ def get_list_database_names() -> list:
     return databases_name
 
 
-def get_list_own_bdd() -> list:
+def get_list_own_db() -> list:
     """
     Retourne la liste des base de données MySQL sans celles par défaut
     """
-    full_list_bdd = get_list_database_names()
+    full_list_db = get_list_database_names()
     unwanted_values = ['information_schema', 'mysql', 'performance_schema', 'phpmyadmin']
-    list_bdd = [x for x in full_list_bdd if x not in unwanted_values]
+    list_db = [x for x in full_list_db if x not in unwanted_values]
 
-    return list_bdd
+    return list_db
 
 
-def print_list_bdd(list_bdd) -> None:
+def print_list_db(list_db) -> None:
     print("\n\tListe de vos bases de données : \n")
-    print('\t - %s' % '\n\t - '.join(map(str, list_bdd)))
+    print('\t - %s' % '\n\t - '.join(map(str, list_db)))
     print("\n")
 
 
-def print_choice_db(bdd_list) -> None:
-    for index in range(len(bdd_list)):
-        print('\t' + str(index) + " - " + bdd_list[index])
+def print_versions_db(db_versions_array) -> None:
+    print("The available versions for this db are :\n")
+    for index in range(len(db_versions_array)):
+        print('\t' + str(index) + " - " + db_versions_array[index] + '\t' + " saved at " + timestamp_to_date((db_versions_array[index])[0:14]))
+
+    #print('\t - %s' % '\n\t - '.join(map(str, db_versions_array)))
+    #print("\n")
+
+
+def print_choice_db(db_list) -> None:
+    for index in range(len(db_list)):
+        print('\t' + str(index) + " - " + db_list[index])
+
+
+def timestamp_to_date(date) -> str:
+    year = date[0:4]
+    month = date[4:6]
+    day = date[6:8]
+    hour = date[8:10]
+    minute = date[10:12]
+    second = date[12:14]
+
+    return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second
+
+
 
 
 def save_db(database_name) -> None:
@@ -167,50 +195,66 @@ def restore_all_db(file_name) -> None:
 
 
 def choose_db() -> str:
-    bdd_list = get_list_own_bdd()
+    db_list = get_list_own_db()
 
     while True:
 
         print("Voici la liste de vos bases de donnees : \n")
 
-        print_choice_db(bdd_list)
+        print_choice_db(db_list)
 
         db_choice = input("\nEntrez le numero correspondant a la base que vous souhaitez sauvegarder :\n")
 
         if db_choice.isdigit():
             db_choice = int(db_choice)
-            if 0 <= db_choice < len(bdd_list):
+            if 0 <= db_choice < len(db_list):
                 break
             else:
                 print("Invalid index")
         else:
             print("Invalid index, please enter a valid index")
 
-    db_chosen = str(bdd_list[db_choice])
+    db_chosen = str(db_list[db_choice])
     print("Vous avez selectionne la base : " + db_chosen)
     return db_chosen
+
+
+def choose_version() -> str:
+    version_choice = input("\n Please select enter the number matching the database you want to restore : \n")
+
+    while True:
+        if version_choice.isdigit():
+            version_choice = int(version_choice)
+            if 0 <= version_choice < len(version_choice):
+                break
+            else:
+                print("Invalid index")
+        else:
+            print("Invalid index, please enter a valid index")
+
+
 
 
 def list_db_versions():
     pass
 
 
-# def save_BDD_zip() -> None:
-# 	# Sauvegarde de la BDD compressé :
+# def save_db_zip() -> None:
+# 	# Sauvegarde de la db compressé :
 # 	os.system('mysqldump -u appli_web -p appli_web | gzip -9 > dump_appli_web_01.sql.gz')
 
-# def restore_BDD_from_zip() -> None:
-# 	# Restauration de la BDD avec fichier compressé :
+# def restore_db_from_zip() -> None:
+# 	# Restauration de la db avec fichier compressé :
 # 	os.system('gunzip < dump_appli_web_01.sql.gz | mysql -u appli_web -p appli_web')
 
 def process_user_choice(user_choice) -> None:
-    cls()
+    clear_screen()
 
     # Liste
     if user_choice == 1:
 
-        list_bdd = get_list_own_bdd()
-        print_list_bdd(list_bdd)
+        list_db = get_list_own_db()
+        print_list_db(list_db)
 
     # Sauvegarde All
     elif user_choice == 2:
@@ -238,10 +282,8 @@ def process_user_choice(user_choice) -> None:
     # Restauration Unique
     elif user_choice == 5:
         """
-        - Lister les base de données dispo
-        - Demander laquelle restaurer
         - Regarder dans le dossier des sauvegardes si il y a des sauvegardes concernant 
-        la bdd voulu
+        la db voulu
         - si c'est le cas, proposer laquelle restaurer
         - si ce n'est pas le cas, proposer de rentrer le chemin du fichier manuellement
         """
@@ -260,9 +302,20 @@ def process_user_choice(user_choice) -> None:
         # read from the end of the pipe (stdout)
         endOfPipe = grep.stdout
 
+
+
+        str_all_versions_db = ""
+
+
         # output the files line by line
         for line in endOfPipe:
-            print(line)
+            str_all_versions_db = str_all_versions_db + line.decode('utf-8')
+
+        array_all_versions_db_raw = str_all_versions_db.split('\n')
+        array_all_versions_db = list(filter(None, array_all_versions_db_raw))
+
+
+        print_versions_db(array_all_versions_db)
 
 
 
@@ -277,13 +330,18 @@ def process_user_choice(user_choice) -> None:
         sys.exit(1)
 
 
+
+
+
+
+
 '''
  ==== MAIN ====
 '''
 
 
 def main():
-    cls()
+    clear_screen()
 
     print("\nBienvenue dans l'utilitaire de gestion de base de donnees.\n")
     print("\tEntrez un nombre correspondant a une action a effectuer :\n")
