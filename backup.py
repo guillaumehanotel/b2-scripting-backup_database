@@ -219,24 +219,58 @@ def choose_db() -> str:
     return db_chosen
 
 
-def choose_version() -> str:
-    version_choice = input("\n Please select enter the number matching the database you want to restore : \n")
+
+def choose_version(array_all_versions_db) -> str:
 
     while True:
+        print_choice_db(array_all_versions_db)
+        version_choice = input("\n Please select enter the number matching the database you want to restore : \n")
+
         if version_choice.isdigit():
             version_choice = int(version_choice)
-            if 0 <= version_choice < len(version_choice):
+            if 0 <= version_choice < len(array_all_versions_db):
                 break
             else:
                 print("Invalid index")
         else:
             print("Invalid index, please enter a valid index")
 
+    version_chosen = str(array_all_versions_db[version_choice])
+    print("Vous avez selectionne la version : " + version_chosen)
+    return version_chosen
+
+
+def get_list_db_versions(db_chosen):
+    # define the ls command
+    ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
+                          stdout=subprocess.PIPE,
+                          )
+
+    # define the grep command
+    grep = subprocess.Popen(["grep", db_chosen],
+                            stdin=ls.stdout,
+                            stdout=subprocess.PIPE,
+                            )
+
+    # read from the end of the pipe (stdout)
+    endOfPipe = grep.stdout
+
+    str_all_versions_db = ""
+
+    # output the files line by line
+    for line in endOfPipe:
+        str_all_versions_db = str_all_versions_db + line.decode('utf-8')
+
+    # split de str_all_versions_db
+    array_all_versions_db_raw = str_all_versions_db.split('\n')
+    array_all_versions_db = list(filter(None, array_all_versions_db_raw))
+
+    return array_all_versions_db
 
 
 
-def list_db_versions():
-    pass
+
+
 
 
 # def save_db_zip() -> None:
@@ -288,42 +322,13 @@ def process_user_choice(user_choice) -> None:
         - si ce n'est pas le cas, proposer de rentrer le chemin du fichier manuellement
         """
 
-        # define the ls command
-        ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
-                              stdout=subprocess.PIPE,
-                              )
+        db_chosen = choose_db()
+        array_all_versions_db = get_list_db_versions(db_chosen)
+        version_chosen = choose_version(array_all_versions_db)
+        print(version_chosen)
+        # TODO finir restore_db avant de finir cette fonction
+        # restore_db(version_chosen)
 
-        # define the grep command
-        grep = subprocess.Popen(["grep", "db2"],
-                                stdin=ls.stdout,
-                                stdout=subprocess.PIPE,
-                                )
-
-        # read from the end of the pipe (stdout)
-        endOfPipe = grep.stdout
-
-
-
-        str_all_versions_db = ""
-
-
-        # output the files line by line
-        for line in endOfPipe:
-            str_all_versions_db = str_all_versions_db + line.decode('utf-8')
-
-        array_all_versions_db_raw = str_all_versions_db.split('\n')
-        array_all_versions_db = list(filter(None, array_all_versions_db_raw))
-
-
-        print_versions_db(array_all_versions_db)
-
-
-
-        # database_name = choose_db()
-        # # lister les elements presents dans le dossier backup (ls)
-        # # lister les versions de CETTE base (grep ?)
-
-        # restore_db(database_name)
 
     else:
         sys.stderr.write("Error : Undefined choice\n")
