@@ -168,12 +168,17 @@ def save_all_db() -> None:
         # mysqldump -u root -perty --all-databases --events > filetest.sql
 
 
-def restore_db(database_name) -> None:
+def restore_db(db_name, db_version) -> None:
     """
     Restauration de la base de données passée en paramètre
     """
-    # os.system("mysql -u root -p " + database_name + " < dump_appli_web_01.sql")
-    pass
+    #os.system("mysql -u root -p " + database_name + " < dump_appli_web_01.sql")
+    command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, db_name]
+
+    backup_file = open(BACKUP_FOLDER+db_version)
+    process = subprocess.Popen(command, stdin=backup_file)
+    #print(BACKUP_FOLDER+db_version)
+    process.wait()
 
 
 # PENDING GUIGUI
@@ -325,9 +330,7 @@ def process_user_choice(user_choice) -> None:
         db_chosen = choose_db()
         array_all_versions_db = get_list_db_versions(db_chosen)
         version_chosen = choose_version(array_all_versions_db)
-        print(version_chosen)
-        # TODO finir restore_db avant de finir cette fonction
-        # restore_db(version_chosen)
+        restore_db(db_chosen, version_chosen)
 
 
     else:
