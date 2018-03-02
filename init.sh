@@ -15,11 +15,10 @@ is_installed(){
 
 install_git(){
 	if [ $(is_installed git) -eq 1 ] ; then
-        	echo "sudo apt-get install git -y"
-		# sudo apt-get install git -y
+        # echo "sudo apt-get install git -y"
+		sudo apt-get install git -y
 	else
 		echo "git already installed";
-		# :  # 'pass'
 	fi
 }
 
