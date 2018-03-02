@@ -43,6 +43,14 @@ BACKUP_FOLDER = "/home/vagrant/Documents/"
 '''
 
 
+def alter_db():
+    os.system("mysql -u root -perty appli_web -e 'UPDATE user SET user_pseudo = \"satan\" WHERE user_id = 1'")
+
+
+def select_user():
+    os.system("mysql -u root -perty appli_web -e 'SELECT * from user'")
+
+
 def touch(path) -> None:
     with open(path, 'a'):
         os.utime(path, None)
@@ -66,7 +74,6 @@ def reformat_number(str_number) -> str:
     if int(str_number) < 10:
         str_number = "0" + str_number
     return str_number
-
 
 
 def get_list_database_names() -> list:
@@ -130,8 +137,6 @@ def timestamp_to_date(date) -> str:
     second = date[12:14]
 
     return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second
-
-
 
 
 def save_db(database_name) -> None:
@@ -224,7 +229,6 @@ def choose_db() -> str:
     return db_chosen
 
 
-
 def choose_version(array_all_versions_db) -> str:
 
     while True:
@@ -286,6 +290,7 @@ def get_list_db_versions(db_chosen):
 # 	# Restauration de la db avec fichier compressé :
 # 	os.system('gunzip < dump_appli_web_01.sql.gz | mysql -u appli_web -p appli_web')
 
+
 def process_user_choice(user_choice) -> None:
     clear_screen()
 
@@ -332,6 +337,14 @@ def process_user_choice(user_choice) -> None:
         version_chosen = choose_version(array_all_versions_db)
         restore_db(db_chosen, version_chosen)
 
+    elif user_choice == 6:
+        exit(0)
+
+    elif user_choice == 7:
+        alter_db()
+
+    elif user_choice == 8:
+        select_user()
 
     else:
         sys.stderr.write("Error : Undefined choice\n")
@@ -360,6 +373,8 @@ def main():
     print("\t[4] => Sauvegarder une base de donnees unique.")
     print("\t[5] => Restaurer une base de donnees unique.")
     print("\t[6] => Exit.\n")
+    print("\t[7] => Alter DB user.\n")
+    print("\t[8] => Select user.\n")
 
     try:
         user_choice = int(input("Votre choix ?\n> "))
