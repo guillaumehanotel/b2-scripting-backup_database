@@ -186,22 +186,15 @@ def restore_db(db_name, db_version) -> None:
     process.wait()
 
 
-# PENDING GUIGUI
-def restore_all_db(file_name) -> None:
-    """
-    Restauration de toutes les bases de données
-        - Regarder dans le dossier des sauvegardes si il y a des sauvegardes concernant
-        l'ensemble des base de données,
-        - si c'est le cas, proposer laquelle restaurer
-        - si ce n'est pas le cas, proposer de rentrer le chemin du fichier manuellement
-    """
+
+def restore_all_db(db_version) -> None:
 
     command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD]
 
-    f = open(file_name, 'r')
-    return_code = subprocess.call(command, stdin=f)
+    backup_file = open(BACKUP_FOLDER+db_version, 'r')
+    process = subprocess.Popen(command, stdin=backup_file)
+    process.wait()
 
-    pass
 
 
 def choose_db() -> str:
@@ -311,11 +304,50 @@ def process_user_choice(user_choice) -> None:
         - Regarder dans le dossier des sauvegardes si il y a des sauvegardes concernant 
         l'ensemble des base de données, 
         - si c'est le cas, proposer laquelle restaurer
-        - si ce n'est pas le cas, proposer de rentrer le chemin du fichier manuellement
         """
-        restore_all_db()
 
-    # BENJI
+        ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
+                              stdout=subprocess.PIPE,
+                              )
+
+        # define the grep command
+        # TODO set global variable name for "dump_all_db"
+        grep = subprocess.Popen(["grep", "dump_all_db"],
+                                stdin=ls.stdout,
+                                stdout=subprocess.PIPE,
+                                )
+
+        # read from the end of the pipe (stdout)
+        endOfPipe = grep.stdout
+
+        str_all_global_backups = ""
+
+        for line in endOfPipe:
+            str_all_global_backups = str_all_global_backups + line.decode('utf-8')
+
+
+        if str_all_global_backups == "":
+            print("No global backup found. Please make one already !!")
+        else:
+            #print(str_all_global_backups)
+            array_all_versions_db_raw = str_all_global_backups.split('\n')
+           # print(array_all_versions_db_raw)
+            array_all_versions_db = list(filter(None, array_all_versions_db_raw))
+           # print(array_all_versions_db)
+           # return array_all_versions_db
+
+            version_chosen = choose_version(array_all_versions_db)
+            restore_all_db(version_chosen)
+
+
+
+
+
+
+
+
+        #restore_all_db()
+
     # Sauvegarde Unique
     elif user_choice == 4:
 
@@ -388,36 +420,3 @@ def main():
 main()
 
 
-def test():
-    command = ['mysqldump', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, 'appli_web']
-    path = "/vagrant/postgreSQL/test.sql"
-    touch(path)
-    f = open(path, "w")
-
-    error_code = subprocess.call(command, stdout=f)
-
-    if error_code == 0:
-        print("success")
-    else:
-        print("Error Code : " + str(error_code))
-
-    '''
-    try:
-        output = subprocess.check_output(command, stdout=f, stderr=subprocess.STDOUT, shell=True, timeout=3,universal_newlines=True)
-    except subprocess.CalledProcessError as exc:
-        print("Status : FAIL", exc.returncode, exc.output)
-    else:
-        print("Output: \n{}\n".format(output))
-    '''
-
-    '''
-    process = subprocess.Popen(command, shell=True,
-                           stdout=f, 
-                           stderr=subprocess.PIPE)
-
-    # wait for the process to terminate
-    out, err = process.communicate()
-    errcode = process.returncode
-    '''
-
-# test()
