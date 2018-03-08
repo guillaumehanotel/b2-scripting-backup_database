@@ -1,4 +1,4 @@
- #!/usr/bin/python3.4
+#!/usr/bin/python3.4
 # -*- coding: utf-8 -*-
 # ====================================================
 # TITLE           : Mysql Database Save Manager
@@ -27,20 +27,12 @@ import os
 import sys
 import datetime
 import colors
+import yaml
 
 # Databases are stored in : /var/lib/mysql
 
 # TODO : reformat restore_all_db()
 # TODO : proposer la sauvegarde distante (ssh)
-
-'''
- ==== Constantes ====  
-'''
-
-# TODO : à externaliser dans un fichier de conf
-MYSQL_USER = "root"
-MYSQL_PASSWORD = "erty"
-BACKUP_FOLDER = "/home/vagrant/Documents/"
 
 
 '''
@@ -63,6 +55,12 @@ def touch(path) -> None:
 
 def clear_screen() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def load_config():
+    with open("config.yml", 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+    return cfg
 
 
 def get_date() -> str:
@@ -355,6 +353,8 @@ def process_user_choice(user_choice) -> None:
 
 
 def main():
+
+
     clear_screen()
 
     print("\nWelcome to the database management program.\n")
@@ -379,6 +379,25 @@ def main():
     process_user_choice(user_choice)
 
 
-main()
+
+'''
+tar zxvf PyYAML-3.12.tar.gz 
+sudo chown -R $USER /usr/local/lib/python3.4
+python3 setup.py install
+http://pyyaml.org/wiki/PyYAML
+'''
+
+'''
+ ==== Constantes ====  
+'''
+
+config = load_config()
+# TODO tester les params (vide / bon dossier)
+MYSQL_USER = config['mysql']['user']
+MYSQL_PASSWORD = config['mysql']['passwd']
+BACKUP_FOLDER = config['backup']['backup_folder']
+
+
+#main()
 
 

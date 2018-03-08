@@ -1,0 +1,7 @@
+mysql:
+    host: localhost
+    user: appli_web
+    passwd: root
+
+backup:
+    backup_folder: /home/vagrant/Documents/
