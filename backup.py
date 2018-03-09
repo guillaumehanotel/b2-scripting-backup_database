@@ -28,6 +28,8 @@ import sys
 import datetime
 import colors
 import yaml
+from os.path import expanduser
+
 
 # Databases are stored in : /var/lib/mysql
 
@@ -52,15 +54,36 @@ def touch(path) -> None:
     with open(path, 'a'):
         os.utime(path, None)
 
-
 def clear_screen() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def load_config(config_file):
+    if not os.path.exists(config_file):
+        print(colors.RED + "File" + config_file + " not found"+ colors.ESCAPE)
+        print(colors.CYAN + "Creating " + colors.ESCAPE + config_file + colors.CYAN + " now...\n\n" + colors.ESCAPE)
+        touch(config_file)
+        fill_default_config_file(config_file)
+    else:
+        pass
 
-def load_config():
-    with open("config.yml", 'r') as ymlfile:
-        cfg = yaml.load(ymlfile)
-    return cfg
+    with open(config_file, 'r') as ymlfile:
+        config = yaml.load(ymlfile)
+    return config
+
+def check_config_file(config_file):
+    
+
+
+
+def fill_default_config_file(config_file) -> None:
+    with open(config_file, 'a') as ymlfile:
+        ymlfile.write("mysql:\n")
+        ymlfile.write("    host: localhost\n")
+        ymlfile.write("    user: root\n")
+        ymlfile.write("    passwd: erty\n")
+        ymlfile.write("backup:\n")
+        ymlfile.write("    backup_folder: /home/vagrant/Documents/\n")
+
 
 
 def get_date() -> str:
@@ -112,7 +135,7 @@ def get_list_own_db() -> list:
 
 
 def print_list_db(list_db) -> None:
-    colors.print_cyan("\n\tYour databases are: \n")
+    colors.print_cyan("Your databases are: \n")
     print('\t - %s' % '\n\t - '.join(map(str, list_db)))
     print("\n")
 
@@ -145,9 +168,10 @@ def save_db(db_name) -> None:
     """
     current_date = get_date()
     file_name = str(BACKUP_FOLDER) + str(current_date) + "-dump_" + db_name + ".sql"
+    file_name_without_path = str(current_date) + "-dump_" + db_name + ".sql"
     os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " " + db_name + " > " + file_name)
-
-    print(colors.GREEN + "\nDatabase " + colors.ESCAPE + "\""+db_name + "\"" + colors.GREEN + " successfully saved in folder "+ colors.ESCAPE + colors.YELLOW + BACKUP_FOLDER + colors.ESCAPE)
+    
+    print(colors.GREEN + "\nDatabase " + colors.ESCAPE + db_name + colors.GREEN + " successfully saved in folder "+ colors.ESCAPE + colors.YELLOW + BACKUP_FOLDER + colors.ESCAPE + colors.GREEN + " under the name : " +colors.ESCAPE +  file_name_without_path +"\n")
 
 
 def save_all_db() -> None:
@@ -158,6 +182,7 @@ def save_all_db() -> None:
 
     current_date = get_date()
     file_name = str(BACKUP_FOLDER) + current_date + "-dump_all_db.sql"
+    file_name_without_path = current_date + "-dump_all_db.sql"
 
     touch(file_name)
     f = open(file_name, "w")
@@ -168,7 +193,7 @@ def save_all_db() -> None:
     colors.print_cyan("Saving all your databases...\n")
 
     if return_code == 0:
-        print(colors.GREEN + "Databases successfully saved in: " + colors.YELLOW +str(BACKUP_FOLDER) + colors.ESCAPE)
+        print(colors.GREEN + "Databases successfully saved in: " + colors.YELLOW +str(BACKUP_FOLDER) + colors.ESCAPE + colors.GREEN + " under the name : " + colors.ESCAPE + file_name_without_path)
         print(" ")
     else:
         sys.stderr.write("Error Code : " + str(return_code))
@@ -184,6 +209,7 @@ def restore_db(db_name, db_version) -> None:
     backup_file = open(BACKUP_FOLDER+db_version)
     process = subprocess.Popen(command, stdin=backup_file)
     process.wait()
+    print(colors.GREEN + "\nVersion successfully restored.\n" + colors.ESCAPE)
 
 
 # TODO color this function
@@ -218,7 +244,7 @@ def choose_db() -> str:
             print("Invalid index, please enter a valid index")
 
     db_chosen = str(db_list[db_choice])
-    print("\nYou selected database : " + colors.YELLOW + db_chosen + colors.ESCAPE)
+    print(colors.CYAN + "\nYou selected database : " + colors.ESCAPE + db_chosen)
     return db_chosen
 
 
@@ -226,7 +252,7 @@ def choose_version(array_all_versions_db) -> str:
 
     while True:
         print_choice_db(array_all_versions_db)
-        version_choice = input("\n Please select enter the number matching the database you want to restore : \n")
+        version_choice = input(colors.CYAN + "\nPlease select enter the number matching the database you want to restore : \n" + colors.ESCAPE + "> ")
 
         if version_choice.isdigit():
             version_choice = int(version_choice)
@@ -238,7 +264,7 @@ def choose_version(array_all_versions_db) -> str:
             print("Invalid index, please enter a valid index")
 
     version_chosen = str(array_all_versions_db[version_choice])
-    print("Vous avez selectionne la version : " + version_chosen)
+    print(colors.CYAN + "\nYou selected version : " + colors.ESCAPE + version_chosen)
     return version_chosen
 
 
@@ -266,7 +292,7 @@ def get_list_db_versions(db_chosen):
     # split de str_all_versions_db
     array_all_versions_db_raw = str_all_versions_db.split('\n')
     array_all_versions_db = list(filter(None, array_all_versions_db_raw))
-
+    print(colors.CYAN + "\nVersions of : " + colors.ESCAPE + db_chosen + "\n")
     return array_all_versions_db
 
 
@@ -277,17 +303,19 @@ def get_list_db_versions(db_chosen):
 def process_user_choice(user_choice) -> None:
     clear_screen()
 
-    # Liste
+    # List databases
     if user_choice == 1:
-
+        print(colors.VIOLET + "LIST OF YOUR DATABASES\n" + colors.ESCAPE)
         list_db = get_list_own_db()
         print_list_db(list_db)
 
-    # Sauvegarde All
+    # Save all databases
     elif user_choice == 2:
+        print(colors.VIOLET + "SAVE ALL YOUR DATABASES\n" + colors.ESCAPE)
         save_all_db()
 
-    # Restauration All
+    # TODO : reformat this function
+    # Restore all databases
     elif user_choice == 3:
         ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
                               stdout=subprocess.PIPE,
@@ -318,17 +346,16 @@ def process_user_choice(user_choice) -> None:
             version_chosen = choose_version(array_all_versions_db)
             restore_all_db(version_chosen)
 
-    # Sauvegarde Unique
-    elif user_choice == 4:
 
-        colors.print_cyan("Save a single database :\n")
+    # Save a single database
+    elif user_choice == 4:
+        print(colors.VIOLET + "SAVE A SINGLE DATABASE\n" + colors.ESCAPE)
         db_chosen = choose_db()
         save_db(db_chosen)
 
-
-    # Restauration Unique
+    # Restore a single database
     elif user_choice == 5:
-
+        print(colors.VIOLET + "RESTORE A SINGLE DATABASE\n" + colors.ESCAPE)
         db_chosen = choose_db()
         array_all_versions_db = get_list_db_versions(db_chosen)
         version_chosen = choose_version(array_all_versions_db)
@@ -354,24 +381,21 @@ def process_user_choice(user_choice) -> None:
 
 def main():
 
-
-    clear_screen()
-
-    print("\nWelcome to the database management program.\n")
+    print("Welcome to the database management program.\n")
     colors.print_cyan("Please enter a number matching your choice :\n")
 
-    print("\t[1] =>" + colors.CYAN + " List" + colors.ESCAPE +" your databases.")
-    print("\n\t[2] =>" + colors.CYAN +" Save all" + colors.ESCAPE +" your databases.")
-    print("\t[3] =>" + colors.CYAN + " Restore all"+ colors.ESCAPE + " your databases.")
+    print("\t[1] =>" + colors.YELLOW + " List" + colors.ESCAPE +" your databases")
+    print("\n\t[2] =>" + colors.YELLOW +" Save all" + colors.ESCAPE +" your databases")
+    print("\t[3] =>" + colors.YELLOW + " Restore all"+ colors.ESCAPE + " your databases")
 
-    print("\n\t[4] =>" + colors.CYAN +  " Save a single" + colors.ESCAPE + " database.")
-    print("\t[5] =>" + colors.CYAN +  " Restore a single" + colors.ESCAPE + " database.")
+    print("\n\t[4] =>" + colors.YELLOW +  " Save a single" + colors.ESCAPE + " database")
+    print("\t[5] =>" + colors.YELLOW +  " Restore a single" + colors.ESCAPE + " database")
 
-    print("\n\t[6] => Exit.\n")
+    print("\n\t[6] =>" +colors.YELLOW + " Exit\n\n" + colors.ESCAPE)
 
 
     try:
-        user_choice = int(input("Enter your choice:\n> "))
+        user_choice = int(input(colors.CYAN + "Enter your choice: " + colors.ESCAPE + "\n > "))
     except ValueError:
         sys.stderr.write("Error : Undefined choice\n")
         sys.exit(1)
@@ -390,14 +414,18 @@ http://pyyaml.org/wiki/PyYAML
 '''
  ==== Constantes ====  
 '''
+home = expanduser("~")
+config_file = home+"/.backup_db_config.yml"
 
-config = load_config()
+clear_screen()
+config = load_config(config_file)
+
 # TODO tester les params (vide / bon dossier)
 MYSQL_USER = config['mysql']['user']
 MYSQL_PASSWORD = config['mysql']['passwd']
 BACKUP_FOLDER = config['backup']['backup_folder']
 
 
-#main()
+main()
 
 

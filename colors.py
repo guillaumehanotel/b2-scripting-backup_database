@@ -23,9 +23,4 @@ def print_violet(prt): print(VIOLET+prt+ESCAPE)
 def print_cyan(prt): print(CYAN+prt+ESCAPE)
 
 
-## Tests
-print_red("Error messages")
-print_green("Success messages")
-print_yellow("Directories")
-print_cyan("Introductions and choices")
 
