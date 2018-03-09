@@ -71,8 +71,7 @@ def load_config(config_file):
     return config
 
 def check_config_file(config_file):
-    
-
+    pass
 
 
 def fill_default_config_file(config_file) -> None:
