@@ -15,9 +15,7 @@
 """
 QUESTIONS / INTERROGATIONS :
 
-- tester si on est pas sur windows ?
 - tester en premier lieu si mysql est installé ?
-- Laisser la possibilité de nommer une sauvegarde ?
 - Laisser la possibilité de faire des saves zippés ?
 
 """
@@ -34,7 +32,7 @@ from os.path import expanduser
 # Databases are stored in : /var/lib/mysql
 
 # TODO : reformat restore_all_db()
-# TODO : proposer la sauvegarde distante (ssh)
+
 
 
 '''
@@ -51,30 +49,66 @@ def select_user():
 
 
 def touch(path) -> None:
+    """
+    Crée le fichier dont le chemin est passé est paramètre
+    """
     with open(path, 'a'):
         os.utime(path, None)
 
+
 def clear_screen() -> None:
+    """
+    Efface la console
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def load_config(config_file):
+    """
+    Prend en paramètre le chemin du fichier de configuration ;
+        si il n'existe pas, il le crée et le rempli avec des valeurs par défaut
+        si il existe, test si tous les attributs sont bien remplis
+    Si tout va bien, la configuration est chargée, sinon dire qu'il faut bien remplir la conf
+    """
     if not os.path.exists(config_file):
         print(colors.RED + "File" + config_file + " not found"+ colors.ESCAPE)
         print(colors.CYAN + "Creating " + colors.ESCAPE + config_file + colors.CYAN + " now...\n\n" + colors.ESCAPE)
         touch(config_file)
         fill_default_config_file(config_file)
     else:
-        pass
+        check_config_file(config_file)
 
     with open(config_file, 'r') as ymlfile:
         config = yaml.load(ymlfile)
     return config
 
+
 def check_config_file(config_file):
-    pass
+    """
+    Prend en paramètre le fichier de configuration, et vérifie si les infos sont bien remplis, sinon exit
+    """
+    with open(config_file, 'r') as ymlfile:
+        config = yaml.load(ymlfile)
+
+    param_to_test = [config['mysql']['user'], config['mysql']['host'], config['backup']['backup_folder']]
+
+    # si l'un des param est vide ou si le chemin du backup folder n'existe pas
+    if check_emptiness(param_to_test) or not os.path.exists(config['backup']['backup_folder']):
+        print("The configuration file is incomplete or the backup folder doesn't exist, please check your parameter in " + config_file)
+        sys.exit(0)
+
+
+def check_emptiness(list):
+    for val in list:
+        if val == "" or val is None:
+            return True
+    return False
 
 
 def fill_default_config_file(config_file) -> None:
+    """
+    Ouvre le fichier de configuration et le rempli avec une config par défaut
+    """
     with open(config_file, 'a') as ymlfile:
         ymlfile.write("mysql:\n")
         ymlfile.write("    host: localhost\n")
@@ -82,7 +116,6 @@ def fill_default_config_file(config_file) -> None:
         ymlfile.write("    passwd: erty\n")
         ymlfile.write("backup:\n")
         ymlfile.write("    backup_folder: /home/vagrant/Documents/\n")
-
 
 
 def get_date() -> str:
@@ -96,6 +129,10 @@ def get_date() -> str:
 
 
 def reformat_number(str_number) -> str:
+    """
+    Prend en paramètre un nombre (str), si il est inférieur à 10
+    rajoute un 0 au début du str
+    """
     if int(str_number) < 10:
         str_number = "0" + str_number
     return str_number
@@ -106,7 +143,7 @@ def get_list_db_names() -> list:
     Retourne la liste des base de données MySQL
     """
 
-    command = "mysql -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " -e 'show databases;'"
+    command = "mysql -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " -h " + MYSQL_HOST + " -e 'show databases;'"
 
     # output bash to python variable
     process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
@@ -173,11 +210,13 @@ def save_db(db_name) -> None:
     print(colors.GREEN + "\nDatabase " + colors.ESCAPE + db_name + colors.GREEN + " successfully saved in folder "+ colors.ESCAPE + colors.YELLOW + BACKUP_FOLDER + colors.ESCAPE + colors.GREEN + " under the name : " +colors.ESCAPE +  file_name_without_path +"\n")
 
 
+# TODO : externaliser cette fonction dans un autre fichier
+# dans cette fct, on executera l'autre fichier
 def save_all_db() -> None:
     """
     Sauvegarde de toutes les bases de données
     """
-    command = ['mysqldump', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '--all-databases', '--events']
+    command = ['mysqldump', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '-h', MYSQL_HOST, '--all-databases', '--events']
 
     current_date = get_date()
     file_name = str(BACKUP_FOLDER) + current_date + "-dump_all_db.sql"
@@ -203,7 +242,7 @@ def restore_db(db_name, db_version) -> None:
     """
     Restauration de la base de données passée en paramètre
     """
-    command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, db_name]
+    command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '-h', MYSQL_HOST, db_name]
 
     backup_file = open(BACKUP_FOLDER+db_version)
     process = subprocess.Popen(command, stdin=backup_file)
@@ -214,12 +253,11 @@ def restore_db(db_name, db_version) -> None:
 # TODO color this function
 def restore_all_db(db_version) -> None:
 
-    command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD]
+    command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '-h', MYSQL_HOST]
 
     backup_file = open(BACKUP_FOLDER+db_version, 'r')
     process = subprocess.Popen(command, stdin=backup_file)
     process.wait()
-
 
 
 def choose_db() -> str:
@@ -274,7 +312,7 @@ def get_list_db_versions(db_chosen):
                           )
 
     # define the grep command
-    grep = subprocess.Popen(["grep", db_chosen],
+    grep = subprocess.Popen(["grep", db_chosen+'.sql'],
                             stdin=ls.stdout,
                             stdout=subprocess.PIPE,
                             )
@@ -293,10 +331,6 @@ def get_list_db_versions(db_chosen):
     array_all_versions_db = list(filter(None, array_all_versions_db_raw))
     print(colors.CYAN + "\nVersions of : " + colors.ESCAPE + db_chosen + "\n")
     return array_all_versions_db
-
-
-
-
 
 
 def process_user_choice(user_choice) -> None:
@@ -392,7 +426,6 @@ def main():
 
     print("\n\t[6] =>" +colors.YELLOW + " Exit\n\n" + colors.ESCAPE)
 
-
     try:
         user_choice = int(input(colors.CYAN + "Enter your choice: " + colors.ESCAPE + "\n > "))
     except ValueError:
@@ -419,12 +452,40 @@ config_file = home+"/.backup_db_config.yml"
 clear_screen()
 config = load_config(config_file)
 
-# TODO tester les params (vide / bon dossier)
+
 MYSQL_USER = config['mysql']['user']
 MYSQL_PASSWORD = config['mysql']['passwd']
+MYSQL_HOST = config['mysql']['host']
 BACKUP_FOLDER = config['backup']['backup_folder']
 
+try:
+    main()
+except KeyboardInterrupt:
+    print('Interrupted')
+    try:
+        sys.exit(0)
+    except SystemExit:
+        sys.exit(0)
 
-main()
+
+'''
+Voulez-vous programmez une sauvegarde automatique de l'ensemble des BDD ?
+est-ce que vous voulez dans un intervalle de :
+- minutes
+- heures
+- jours
+- semaines
+- mois
+
+dans quel intervalle de (m/h/j/s/m) voulez vous executer la save ?
+
+Combien de sauvegarde max voulez vous garder ? 
+# Faire la diff entre save manu et save auto pour éliminer le surplus ?
 
 
+-> remplir la conf avec l'attribut NB_MAX_SAVE
+
+-> écrire dans la crontab l'execution de l'autre fichier save all
+
+
+'''
