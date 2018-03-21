@@ -31,7 +31,7 @@ from os.path import expanduser
 
 # Databases are stored in : /var/lib/mysql
 
-# TODO : reformat restore_all_db()
+
 
 
 
@@ -250,7 +250,6 @@ def restore_db(db_name, db_version) -> None:
     print(colors.GREEN + "\nVersion successfully restored.\n" + colors.ESCAPE)
 
 
-# TODO color this function
 def restore_all_db(db_version) -> None:
 
     command = ['mysql', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '-h', MYSQL_HOST]
@@ -258,6 +257,7 @@ def restore_all_db(db_version) -> None:
     backup_file = open(BACKUP_FOLDER+db_version, 'r')
     process = subprocess.Popen(command, stdin=backup_file)
     process.wait()
+    print(colors.GREEN + "\nVersion successfully restored.\n" + colors.ESCAPE)
 
 
 def choose_db() -> str:
@@ -305,7 +305,7 @@ def choose_version(array_all_versions_db) -> str:
     return version_chosen
 
 
-def get_list_db_versions(db_chosen):
+def get_list_db_versions(db_chosen="dump_all_db"):
     # define the ls command
     ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
                           stdout=subprocess.PIPE,
@@ -327,8 +327,13 @@ def get_list_db_versions(db_chosen):
         str_all_versions_db = str_all_versions_db + line.decode('utf-8')
 
     # split de str_all_versions_db
-    array_all_versions_db_raw = str_all_versions_db.split('\n')
-    array_all_versions_db = list(filter(None, array_all_versions_db_raw))
+    if str_all_versions_db == "":
+        print("No backup found. Please make one already !")
+        sys.exit(1)
+    else:
+        array_all_versions_db_raw = str_all_versions_db.split('\n')
+        array_all_versions_db = list(filter(None, array_all_versions_db_raw))
+
     print(colors.CYAN + "\nVersions of : " + colors.ESCAPE + db_chosen + "\n")
     return array_all_versions_db
 
@@ -338,57 +343,36 @@ def process_user_choice(user_choice) -> None:
 
     # List databases
     if user_choice == 1:
+
         print(colors.VIOLET + "LIST OF YOUR DATABASES\n" + colors.ESCAPE)
         list_db = get_list_own_db()
         print_list_db(list_db)
 
     # Save all databases
     elif user_choice == 2:
+
         print(colors.VIOLET + "SAVE ALL YOUR DATABASES\n" + colors.ESCAPE)
         save_all_db()
 
-    # TODO : reformat this function
     # Restore all databases
     elif user_choice == 3:
-        ls = subprocess.Popen(["ls", "-p", BACKUP_FOLDER],
-                              stdout=subprocess.PIPE,
-                              )
 
-        # define the grep command
-        # TODO set global variable name for "dump_all_db"
-        grep = subprocess.Popen(["grep", "dump_all_db"],
-                                stdin=ls.stdout,
-                                stdout=subprocess.PIPE,
-                                )
-
-        # read from the end of the pipe (stdout)
-        endOfPipe = grep.stdout
-
-        str_all_global_backups = ""
-
-        for line in endOfPipe:
-            str_all_global_backups = str_all_global_backups + line.decode('utf-8')
-
-
-        if str_all_global_backups == "":
-            print("No global backup found. Please make one already !!")
-        else:
-            array_all_versions_db_raw = str_all_global_backups.split('\n')
-            array_all_versions_db = list(filter(None, array_all_versions_db_raw))
-
-            version_chosen = choose_version(array_all_versions_db)
-            restore_all_db(version_chosen)
-
+        print(colors.VIOLET + "SAVE ALL YOUR DATABASES\n" + colors.ESCAPE)
+        array_all_versions_db = get_list_db_versions()
+        version_chosen = choose_version(array_all_versions_db)
+        restore_all_db(version_chosen)
 
     # Save a single database
     elif user_choice == 4:
+
         print(colors.VIOLET + "SAVE A SINGLE DATABASE\n" + colors.ESCAPE)
         db_chosen = choose_db()
         save_db(db_chosen)
 
     # Restore a single database
     elif user_choice == 5:
-        print(colors.VIOLET + "RESTORE A SINGLE DATABASE\n" + colors.ESCAPE)
+
+        print(colors.VIOLET + "RESTORE ALL YOUR DATABASES\n" + colors.ESCAPE)
         db_chosen = choose_db()
         array_all_versions_db = get_list_db_versions(db_chosen)
         version_chosen = choose_version(array_all_versions_db)
@@ -437,6 +421,8 @@ def main():
 
 
 '''
+INSTALLATION PY YAML
+
 tar zxvf PyYAML-3.12.tar.gz 
 sudo chown -R $USER /usr/local/lib/python3.4
 python3 setup.py install
@@ -461,11 +447,13 @@ BACKUP_FOLDER = config['backup']['backup_folder']
 try:
     main()
 except KeyboardInterrupt:
-    print('Interrupted')
+    print('Process Interrupted')
     try:
         sys.exit(0)
     except SystemExit:
         sys.exit(0)
+
+
 
 
 '''
