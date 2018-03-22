@@ -24,7 +24,7 @@ import subprocess
 import os
 import sys
 from os.path import expanduser
-import colors
+import ansi_colors as colors
 import functions as fct
 from save_all_db import save_all_db
 
@@ -281,7 +281,7 @@ def process_user_choice(user_choice) -> None:
 def main():
 
     print("Welcome to the database management program.\n")
-    colors.print_cyan("Please enter a number matching your choice :\n")
+    print("Please enter a number matching your choice :\n")
 
     print("\t[1] =>" + colors.YELLOW + " List" + colors.ESCAPE +" your databases")
     print("\n\t[2] =>" + colors.YELLOW +" Save all" + colors.ESCAPE +" your databases")

@@ -8,7 +8,7 @@
 
 import os
 import datetime
-import colors
+import ansi_colors as colors
 import yaml
 import sys
 

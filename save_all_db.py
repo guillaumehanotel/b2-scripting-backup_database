@@ -9,7 +9,7 @@
 # ====================================================
 
 from os.path import expanduser
-import colors
+import ansi_colors as colors
 import functions as fct
 import subprocess
 import sys
@@ -31,7 +31,7 @@ def save_all_db(MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, BACKUP_FOLDER) -> None:
 	return_code = subprocess.call(command, stdout=f)
 
 	fct.clear_screen()
-	colors.print_cyan("Saving all your databases...\n")
+	print("Saving all your databases...\n")
 
 	if return_code == 0:
 		print(colors.GREEN + "Databases successfully saved in: " + colors.YELLOW + str(
