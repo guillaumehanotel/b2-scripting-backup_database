@@ -8,6 +8,7 @@
 # DATE            : 26/02/2018
 # ====================================================
 
+from os.path import expanduser
 import colors
 import functions as fct
 import subprocess
@@ -41,8 +42,16 @@ def save_all_db(MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, BACKUP_FOLDER) -> None:
 		sys.exit(1)
 
 
+home = expanduser("~")
+config_file = home+"/.backup_db_config.yml"
+config = fct.load_config(config_file)
 
 
+MYSQL_USER = config['mysql']['user']
+MYSQL_PASSWORD = config['mysql']['passwd']
+MYSQL_HOST = config['mysql']['host']
+BACKUP_FOLDER = config['backup']['backup_folder']
 
+save_all_db(MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, BACKUP_FOLDER)
 
 
