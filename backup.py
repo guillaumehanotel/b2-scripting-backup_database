@@ -24,9 +24,11 @@ import subprocess
 import os
 import sys
 import datetime
-import colors
 import yaml
 from os.path import expanduser
+import colors
+import functions as fct
+from save_all_db import save_all_db
 
 
 # Databases are stored in : /var/lib/mysql
@@ -48,21 +50,6 @@ def select_user():
     os.system("mysql -u root -perty appli_web -e 'SELECT * from user'")
 
 
-def touch(path) -> None:
-    """
-    Crée le fichier dont le chemin est passé est paramètre
-    """
-    with open(path, 'a'):
-        os.utime(path, None)
-
-
-def clear_screen() -> None:
-    """
-    Efface la console
-    """
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-
 def load_config(config_file):
     """
     Prend en paramètre le chemin du fichier de configuration ;
@@ -73,7 +60,7 @@ def load_config(config_file):
     if not os.path.exists(config_file):
         print(colors.RED + "File" + config_file + " not found"+ colors.ESCAPE)
         print(colors.CYAN + "Creating " + colors.ESCAPE + config_file + colors.CYAN + " now...\n\n" + colors.ESCAPE)
-        touch(config_file)
+        fct.touch(config_file)
         fill_default_config_file(config_file)
     else:
         check_config_file(config_file)
@@ -116,26 +103,6 @@ def fill_default_config_file(config_file) -> None:
         ymlfile.write("    passwd: erty\n")
         ymlfile.write("backup:\n")
         ymlfile.write("    backup_folder: /home/vagrant/Documents/\n")
-
-
-def get_date() -> str:
-    """
-    Fonction retournant la date du jour
-    :return: formatted_date
-    """
-    date_now = datetime.datetime.now()
-    formatted_date = str(date_now.year) + reformat_number(str(date_now.month)) + reformat_number(str(date_now.day)) + reformat_number(str(date_now.hour)) + reformat_number(str(date_now.minute)) + reformat_number(str(date_now.second))
-    return formatted_date
-
-
-def reformat_number(str_number) -> str:
-    """
-    Prend en paramètre un nombre (str), si il est inférieur à 10
-    rajoute un 0 au début du str
-    """
-    if int(str_number) < 10:
-        str_number = "0" + str_number
-    return str_number
 
 
 def get_list_db_names() -> list:
@@ -202,40 +169,12 @@ def save_db(db_name) -> None:
     """
     Sauvegarde de la base de données passée en paramètre
     """
-    current_date = get_date()
+    current_date = fct.get_date()
     file_name = str(BACKUP_FOLDER) + str(current_date) + "-dump_" + db_name + ".sql"
     file_name_without_path = str(current_date) + "-dump_" + db_name + ".sql"
     os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " " + db_name + " > " + file_name)
     
     print(colors.GREEN + "\nDatabase " + colors.ESCAPE + db_name + colors.GREEN + " successfully saved in folder "+ colors.ESCAPE + colors.YELLOW + BACKUP_FOLDER + colors.ESCAPE + colors.GREEN + " under the name : " +colors.ESCAPE +  file_name_without_path +"\n")
-
-
-# TODO : externaliser cette fonction dans un autre fichier
-# dans cette fct, on executera l'autre fichier
-def save_all_db() -> None:
-    """
-    Sauvegarde de toutes les bases de données
-    """
-    command = ['mysqldump', '-u', MYSQL_USER, '-p' + MYSQL_PASSWORD, '-h', MYSQL_HOST, '--all-databases', '--events']
-
-    current_date = get_date()
-    file_name = str(BACKUP_FOLDER) + current_date + "-dump_all_db.sql"
-    file_name_without_path = current_date + "-dump_all_db.sql"
-
-    touch(file_name)
-    f = open(file_name, "w")
-
-    return_code = subprocess.call(command, stdout=f)
-    
-    clear_screen()
-    colors.print_cyan("Saving all your databases...\n")
-
-    if return_code == 0:
-        print(colors.GREEN + "Databases successfully saved in: " + colors.YELLOW +str(BACKUP_FOLDER) + colors.ESCAPE + colors.GREEN + " under the name : " + colors.ESCAPE + file_name_without_path)
-        print(" ")
-    else:
-        sys.stderr.write("Error Code : " + str(return_code))
-        sys.exit(1)
 
 
 def restore_db(db_name, db_version) -> None:
@@ -339,7 +278,7 @@ def get_list_db_versions(db_chosen="dump_all_db"):
 
 
 def process_user_choice(user_choice) -> None:
-    clear_screen()
+    fct.clear_screen()
 
     # List databases
     if user_choice == 1:
@@ -352,7 +291,7 @@ def process_user_choice(user_choice) -> None:
     elif user_choice == 2:
 
         print(colors.VIOLET + "SAVE ALL YOUR DATABASES\n" + colors.ESCAPE)
-        save_all_db()
+        save_all_db(MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, BACKUP_FOLDER)
 
     # Restore all databases
     elif user_choice == 3:
@@ -435,7 +374,7 @@ http://pyyaml.org/wiki/PyYAML
 home = expanduser("~")
 config_file = home+"/.backup_db_config.yml"
 
-clear_screen()
+fct.clear_screen()
 config = load_config(config_file)
 
 
@@ -447,7 +386,7 @@ BACKUP_FOLDER = config['backup']['backup_folder']
 try:
     main()
 except KeyboardInterrupt:
-    print('Process Interrupted')
+    print('\nProcess Interrupted')
     try:
         sys.exit(0)
     except SystemExit:
