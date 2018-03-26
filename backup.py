@@ -27,12 +27,14 @@ from os.path import expanduser
 import ansi_colors as colors
 import functions as fct
 from save_all_db import save_all_db
+import cron_chooser as cron 
 
 
 # Databases are stored in : /var/lib/mysql
 
 
-
+# TODO : set correct time
+# TODO : print out requirements.txt 
 
 
 '''
@@ -81,7 +83,7 @@ def get_list_own_db() -> list:
 
 
 def print_list_db(list_db) -> None:
-    colors.print_cyan("Your databases are: \n")
+    print("Your databases are: \n")
     print('\t - %s' % '\n\t - '.join(map(str, list_db)))
     print("\n")
 
@@ -147,7 +149,7 @@ def choose_db() -> str:
 
     while True:
 
-        colors.print_cyan("Your databases are : \n")
+        print("Your databases are : \n")
 
         print_choice_db(db_list)
 
@@ -261,43 +263,8 @@ def process_user_choice(user_choice) -> None:
         restore_db(db_chosen, version_chosen)
 
     elif user_choice == 6:
-        '''
-        Voulez-vous programmez une sauvegarde automatique de l'ensemble des BDD ?
-        est-ce que vous voulez dans un intervalle de :
-        - minutes
-        - heures
-        - jours
-        - semaines
-        - mois
-    
-        dans quel intervalle de (m/h/j/s/m) voulez vous executer la save ?
-    
-        Combien de sauvegarde max voulez vous garder ? 
-        # Faire la diff entre save manu et save auto pour éliminer le surplus ?
-    
-    
-        -> remplir la conf avec l'attribut NB_MAX_SAVE
-    
-        -> écrire dans la crontab l'execution de l'autre fichier save all
-        '''
-
-        print("Dans quelle intervalle voulez-vous programmer la sauvegarde ?\n")
-
-        print("\t[1] => Par minutes")
-        print("\t[2] => Par heures")
-        print("\t[3] => Par jours")
-        print("\t[4] => Par semaines")
-        print("\t[5] => Par mois")
-
-        try:
-            user_choice = int(input(colors.CYAN + "Enter your choice: " + colors.ESCAPE + "\n > "))
-        except ValueError:
-            sys.stderr.write("Error : Undefined choice\n")
-            sys.exit(1)
-
-
-
-
+        cron_frequency = cron.ask_frequency()
+        print(cron_frequency)
 
 
     elif user_choice == 7:
@@ -310,35 +277,35 @@ def process_user_choice(user_choice) -> None:
 
 
 
-
-
-
 '''
  ==== MAIN ====
 '''
 
 
 def main():
-
+    # TODO : reformater les couleurs
     print("Welcome to the database management program.\n")
-    print("Please enter a number matching your choice :\n")
+    print("Please enter the number matching your choice :\n")
 
-    print("\t[1] =>" + colors.YELLOW + " List" + colors.ESCAPE + " your databases")
-    print("\n\t[2] =>" + colors.YELLOW + " Save all" + colors.ESCAPE + " your databases")
-    print("\t[3] =>" + colors.YELLOW + " Restore all" + colors.ESCAPE + " your databases")
+    print("\t[1] => {}List{} your databases".format(colors.YELLOW, colors.ESCAPE))
+    print("\n\t[2] => {}Save all {}your databases".format(colors.YELLOW, colors.ESCAPE))
+    print("\t[3] => {}Restore all{} your databases".format(colors.YELLOW, colors.ESCAPE))
 
-    print("\n\t[4] =>" + colors.YELLOW + " Save a single" + colors.ESCAPE + " database")
-    print("\t[5] =>" + colors.YELLOW + " Restore a single" + colors.ESCAPE + " database")
+    print("\n\t[4] => {}Save a single{} database".format(colors.YELLOW, colors.ESCAPE))
+    print("\t[5] => {}Restore a single{} database".format(colors.YELLOW, colors.ESCAPE))
 
     print("\n\t[6] => Schedule an automatic backup for all databases")
 
-    print("\n\t[7] =>" + colors.YELLOW + " Exit\n\n" + colors.ESCAPE)
+    print("\n\t[7] => {}Exit{}".format(colors.YELLOW, colors.ESCAPE))
 
-    try:
-        user_choice = int(input(colors.CYAN + "Enter your choice: " + colors.ESCAPE + "\n > "))
-    except ValueError:
-        sys.stderr.write("Error : Undefined choice\n")
-        sys.exit(1)
+
+    while True:
+        try:
+            user_choice = int(input("\n\n{}Enter your choice :{} \n > ".format(colors.CYAN, colors.ESCAPE)))
+            break
+        except ValueError:
+            sys.stderr.write("{}\nError : Undefined choice\n\n{}".format(colors.RED, colors.ESCAPE))
+            # sys.exit(1)
 
     process_user_choice(user_choice)
 

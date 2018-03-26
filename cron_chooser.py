@@ -154,5 +154,5 @@ def ask_frequency():
 	return cron
 
 
-cron = ask_frequency()
-print(cron)
+# cron = ask_frequency()
+# print(cron)
