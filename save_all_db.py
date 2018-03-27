@@ -52,6 +52,7 @@ MYSQL_PASSWORD = config['mysql']['passwd']
 MYSQL_HOST = config['mysql']['host']
 BACKUP_FOLDER = config['backup']['backup_folder']
 
+
 save_all_db(MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, BACKUP_FOLDER)
 
 
