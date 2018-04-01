@@ -56,7 +56,7 @@ Création d'un script python permettant :
 Pour installer le serveur web (apache/mysql/php/phpmyadmin) et le site, il faut taper les commandes suivantes :
 
 		cd ~/postgreSQL/script_install
-		make install
+		make server_install
 		
 Cette commande va installer consécutivement :
 - Apache2
@@ -109,3 +109,8 @@ Cette commande va installer consécutivement :
 			
 			
 ### Partie 2 : Script de sauvegarde
+
+#### Prérequis 
+Lors de la première éxecution du script, il vous sera demander de rentrer les identifiants de votre utilisateur MySQL.
+Pour que le script fonctionne, il faut bien que l'utilisateur ait un minimum de privilèges pour pouvoir faire des sauvegardes.
+Si vous n'êtes pas sûr, exécutez ces commandes en remplaçant par vos informations :
