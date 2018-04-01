@@ -7,7 +7,7 @@ is_installed(){
 
 install_apache(){
 	if [ $(is_installed /usr/sbin/apache2) -eq 1 ] ; then
-	    echo "Installing Apache2..."
+	    echo "Installing Apache2, Please wait..."
         # echo "sudo apt-get install apache2 -y"
 		sudo apt-get install apache2 -y > /dev/null 2>&1
 
@@ -18,7 +18,7 @@ install_apache(){
 
 		sudo service apache2 stop
 		sudo service apache2 start
-        echo "Done"
+        echo "Install Apache2 : Done"
 	else
 		echo "apache2 already installed";
 	fi
