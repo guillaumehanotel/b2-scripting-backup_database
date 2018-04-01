@@ -53,9 +53,9 @@ Création d'un script python permettant :
 
 ### Partie 1 : Installation du serveur web
 
-Pour installer le serveur web (apache/mysql/php/phpmyadmin) et le site, il faut taper les commandes suivante :
+Pour installer le serveur web (apache/mysql/php/phpmyadmin) et le site, il faut taper les commandes suivantes :
 
-		cd /postgreSQL/script_install
+		cd ~/postgreSQL/script_install
 		make install
 		
 Cette commande va installer consécutivement :
