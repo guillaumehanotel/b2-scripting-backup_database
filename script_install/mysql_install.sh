@@ -8,11 +8,11 @@ is_installed(){
 install_mysql(){
 
 	if [ $(is_installed /usr/bin/mysql) -eq 1 ] ; then
-        echo "Installing MySQL..."
-		sudo apt-get -y install mysql-server
-        echo "Done"
+        echo "Installing MySQL, Please wait..."
+		sudo apt-get -y install mysql-server > /dev/null 2>&1
+        echo "Installing MySQL : Done"
 	else
-		echo "mysql already installed";
+		echo "MySQL already installed";
 	fi
 }
 
