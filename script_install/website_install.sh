@@ -1,4 +1,4 @@
-echo "Installing webste, Please wait..."
+echo "Installing webiste, Please wait..."
 
 if [ -f /var/www/html/index.html ]; then
 	# Suppression default apache page
@@ -54,5 +54,5 @@ if [ ! -f /etc/apache2/sites-available/001-appli_web.conf ]; then
 fi
 
 
-
+echo "Installing website : Done"
 
