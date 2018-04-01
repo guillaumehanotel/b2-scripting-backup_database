@@ -51,3 +51,51 @@ Création d'un script python permettant :
 
         git clone https://github.com/jonimofo/postgreSQL
 
+### Partie 1 : Installation du serveur web
+
+Pour installer le serveur web (apache/mysql/php/phpmyadmin) et le site, il faut taper les commandes suivante :
+
+		cd /postgreSQL/script_install
+		make install
+		
+Cette commande va installer consécutivement :
+- Apache2
+- PHP 7.1
+- MySQL
+	- Lors de l'installation de MySQL, il vous sera  demandé de remplir des champs :
+	- Fournir un mot de passe pour le user "root"								
+	
+			<YOUR_PASSWORD>
+			<Tab>
+			<Entrer>
+	- Répéter le mot de passe choisi :
+	
+			<YOUR_PASSWORD_REPEATED>
+			<Tab>
+			<Entrer>
+- PHPMyAdmin
+ 	- Lors de l'installation de PHPMyAdmin, il vous sera  demandé de remplir des champs :
+	- Cocher la cache "apache2"								
+	
+			<Espace>
+			<Tab>
+			<Entrer>
+	- "Configure database for phpmyadmin..." :
+	
+			<Entrer>
+			
+	- Fournir un mot de passe pour le compte root	:							
+	
+			<YOUR_PASSWORD>
+			<Tab>
+			<Entrer>
+	- Fournir un mot de passe pour le compte MySQL	:							
+	
+			<YOUR_PASSWORD>
+			<Tab>
+			<Entrer>
+	- Confirmer le mot de passe	:							
+	
+			<YOUR_PASSWORD>
+			<Tab>
+			<Entrer>
