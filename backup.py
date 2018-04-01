@@ -31,6 +31,9 @@ import zipfile
 
 
 
+
+
+
 '''
  ==== Functions ====
 '''
@@ -357,6 +360,10 @@ def restore_all_db() -> None:
 		restore_a_single_database(database)
 
 
+def execute_mysql_cmd(cmd):
+	os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " -e '" + cmd + "'")
+
+
 def choose_db() -> str:
 	"""
 	Affiche la liste des BDD, et permet à l'utilisateur de choisir celle qu'il veut
@@ -484,6 +491,8 @@ def process_user_choice(user_choice) -> None:
 		restore_a_single_database(db_chosen)
 
 	elif user_choice == 6:
+		privileges = "GRANT SELECT, LOCK TABLES ON *.* TO " + MYSQL_USER + "@" + MYSQL_HOST
+		#execute_mysql_cmd(privileges)
 		exit(0)
 
 	else:
@@ -546,6 +555,7 @@ MYSQL_HOST = config['mysql']['host']
 BACKUP_FOLDER = config['backup']['backup_folder']
 NB_MAX_SAVE = config['backup']['nb_max_save']
 
+
 if BACKUP_FOLDER[-1:] != "/":
 	BACKUP_FOLDER = BACKUP_FOLDER + "/"
 
@@ -557,3 +567,6 @@ except KeyboardInterrupt:
 		sys.exit(0)
 	except SystemExit:
 		sys.exit(0)
+
+
+
