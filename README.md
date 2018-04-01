@@ -96,6 +96,16 @@ Cette commande va installer consécutivement :
 			<Entrer>
 	- Confirmer le mot de passe	:							
 	
-			<YOUR_PASSWORD>
+			<YOUR_PASSWORD_REPEATED>
 			<Tab>
 			<Entrer>
+
+- Le site web, ainsi que la configuration apache associé
+- La base de données **appli_web** du site web avec son utilisateur MySQL associé : **appli_web**
+	- Il vous sera demandé lors du déploiement de la base de données, le mot de passe MySQL de l'utilisateur **root** :
+	
+			<YOUR_PASSWORD>
+			<Entrer>
+			
+			
+### Partie 2 : Script de sauvegarde
