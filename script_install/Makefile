@@ -11,3 +11,4 @@ install: ## Installe un serveur web avec un site
 	./phpmyadmin_install.sh
 	./website_install.sh
 	./database_install.sh
+	./python3_install.sh
