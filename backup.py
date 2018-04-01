@@ -17,21 +17,10 @@ import os
 import sys
 from os.path import expanduser
 import ansi_colors as colors
-import shutil
 import datetime
 import yaml
 import re
 import zipfile
-
-
-# TODO : Installation du script (PHPMYADMIN)
-# TODO : print out requirements.txt
-
-# TODO : droits user mysql : select & lock tables
-
-
-
-
 
 
 '''
@@ -360,10 +349,6 @@ def restore_all_db() -> None:
 		restore_a_single_database(database)
 
 
-def execute_mysql_cmd(cmd):
-	os.system("mysqldump -u " + MYSQL_USER + " -p" + MYSQL_PASSWORD + " -e '" + cmd + "'")
-
-
 def choose_db() -> str:
 	"""
 	Affiche la liste des BDD, et permet à l'utilisateur de choisir celle qu'il veut
@@ -491,8 +476,6 @@ def process_user_choice(user_choice) -> None:
 		restore_a_single_database(db_chosen)
 
 	elif user_choice == 6:
-		privileges = "GRANT SELECT, LOCK TABLES ON *.* TO " + MYSQL_USER + "@" + MYSQL_HOST
-		#execute_mysql_cmd(privileges)
 		exit(0)
 
 	else:
@@ -529,16 +512,6 @@ def main():
 	process_user_choice(user_choice)
 	clean_old_save()
 
-
-
-'''
-INSTALLATION PY YAML
-
-tar zxvf PyYAML-3.12.tar.gz 
-sudo chown -R $USER /usr/local/lib/python3.4
-python3 setup.py install
-http://pyyaml.org/wiki/PyYAML
-'''
 
 '''
  ==== Constantes ====  
