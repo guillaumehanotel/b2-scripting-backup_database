@@ -8,22 +8,22 @@ is_installed(){
 install_php7(){
 
 	if [ $(is_installed /usr/bin/php7.1) -eq 1 ] ; then
-        echo "Installing PHP7.1..."
+        echo "Installing PHP 7.1, Please Wait..."
 
-		sudo apt-get install apt-transport-https lsb-release ca-certificates
+		sudo apt-get install apt-transport-https lsb-release ca-certificates -y > /dev/null 2>&1
 
-		sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+		sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg > /dev/null 2>&1
 
-		sudo echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+		echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list > /dev/null 2>&1
 
-		sudo apt-get update
+		sudo apt-get update > /dev/null 2>&1
 
-		sudo apt install --no-install-recommends php7.1 libapache2-mod-php7.1 php7.1-mysql php7.1-curl php7.1-json php7.1-gd php7.1-mcrypt php7.1-msgpack php7.1-memcached php7.1-intl php7.1-sqlite3 php7.1-gmp php7.1-geoip php7.1-mbstring php7.1-redis php7.1-xml php7.1-zip
+		sudo apt install --no-install-recommends php7.1 libapache2-mod-php7.1 php7.1-mysql php7.1-curl php7.1-json php7.1-gd php7.1-mcrypt php7.1-msgpack php7.1-memcached php7.1-intl php7.1-sqlite3 php7.1-gmp php7.1-geoip php7.1-mbstring php7.1-redis php7.1-xml php7.1-zip -y > /dev/null 2>&1
 
-        echo "Done"
+        echo "Installing PHP 7.1 : Done"
 
 	else
-		echo "php7 already installed";
+		echo "PHP 7.1 already installed";
 	fi
 }
 
