@@ -113,4 +113,27 @@ Cette commande va installer consécutivement :
 #### Prérequis 
 Lors de la première éxecution du script, il vous sera demander de rentrer les identifiants de votre utilisateur MySQL.
 Pour que le script fonctionne, il faut bien que l'utilisateur ait un minimum de privilèges pour pouvoir faire des sauvegardes.
-Si vous n'êtes pas sûr, exécutez ces commandes en remplaçant par vos informations :
+Exécutez cette commande en remplaçant par vos informations :
+
+	mysql -u root -p -e 'GRANT SELECT, LOCK TABLES, SHOW DATABASES ON *.* TO <YOUR_USER>@<YOUR_HOST>'
+
+
+#### Installation du script
+
+Pour installer les dépendances nécessaires à l'exécution du script, tapez les commandes suivantes : 
+	
+	cd ~/postgreSQL/script_install
+	make script_install
+
+#### Usage 
+Vous pouvez maintenant utiliser le script de sauvegarde :
+
+	python3 ~/postgreSQL/backup.py
+
+A la première utilisation, celui-ci vous demandera vos identifiants MySQL, ainsi que le nombre maximal de sauvegarde que vous voulez garder par base de donnée.
+
+Les sauvegardes sont par défauts enregistrées dans le dossier **~/database_backup/**
+
+Mais vous pouvez changer tous ces paramètres dans le fichier le configuration présent à ce chemin : **~/.backup_db_config.yml**
+
+
