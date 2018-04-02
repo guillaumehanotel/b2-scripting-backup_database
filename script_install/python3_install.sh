@@ -5,7 +5,7 @@ is_installed(){
     echo $?
 }
 
-install_php7(){
+install_python3(){
 
 	if [ $(is_installed /usr/bin/python3.4) -eq 1 ] ; then
         echo "Installing Python 3, Please Wait..."
@@ -21,7 +21,7 @@ install_php7(){
 
 
 
-install_php7
+install_python3
 
 
 

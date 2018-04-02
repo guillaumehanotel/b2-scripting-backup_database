@@ -16,3 +16,4 @@ server_install: ## Installe un serveur web avec un site
 script_install: ## Installe les dépendances pour le script de sauvegarde
 	./python3_install.sh
 	./pyyaml_install.sh
+	./unzip.sh
