@@ -48,7 +48,8 @@ Création d'un script python permettant :
 ### Etape 3 : Clone du projet 
 
    Cloner le projet
-
+	
+	cd ~
         git clone https://github.com/jonimofo/postgreSQL
 
 ### Partie 1 : Installation du serveur web
