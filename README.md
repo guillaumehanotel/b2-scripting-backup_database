@@ -43,6 +43,7 @@ Création d'un script python permettant :
    Veillez à installer Git si ce n'est pas déjà fait
 
         sudo apt-get install git -y
+	sudo apt-get install make -y
 
 
 ### Etape 3 : Clone du projet 
